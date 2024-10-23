@@ -23,6 +23,11 @@ sudo apt update && sudo apt upgrade -y
 echo "Installing basic tools..."
 sudo apt install -y curl wget git gnupg lsb-release ca-certificates software-properties-common apt-transport-https
 
+# NeoFetch
+if confirm_installation "NeoFetch"; then
+    sudo apt install -y neofetch
+fi
+
 # Google Chrome
 if confirm_installation "Google Chrome"; then
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -87,8 +92,7 @@ if confirm_installation "nvm and Node.js"; then
     # Install nvm
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
     source ~/.bashrc
-
-    # Bucle para repetir la pregunta hasta recibir una respuesta válida
+    # Install Node.js
     while true; do
         echo "Which version of Node.js would you like to install? (1) LTS or (2) Latest"
         read -r node_version_choice
@@ -109,33 +113,10 @@ if confirm_installation "nvm and Node.js"; then
     done
 fi
 
-
 # Configure pnpm with corepack
 if confirm_installation "pnpm with corepack"; then
     corepack enable
     corepack prepare pnpm@latest --activate
-fi
-
-# OBS Studio
-if confirm_installation "OBS Studio"; then
-    sudo add-apt-repository ppa:obsproject/obs-studio
-    sudo apt update
-    sudo apt install -y obs-studio
-fi
-
-# Logseq
-if confirm_installation "Logseq"; then
-    wget https://github.com/logseq/logseq/releases/download/<latest_version>/Logseq-linux-x64-<version>.AppImage
-    chmod +x Logseq-linux-x64-<version>.AppImage
-    sudo mv Logseq-linux-x64-<version>.AppImage /usr/local/bin/logseq
-fi
-
-# Spotify
-if confirm_installation "Spotify"; then
-    curl -sS https://download.spotify.com/debian/pubkey.gpg | sudo apt-key add -
-    echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
-    sudo apt update
-    sudo apt install -y spotify-client
 fi
 
 # Oracle VM VirtualBox
@@ -151,6 +132,53 @@ if confirm_installation "GitHub CLI"; then
     sudo apt-add-repository https://cli.github.com/packages
     sudo apt update
     sudo apt install gh -y
+fi
+
+# Postman
+if confirm_installation "Postman"; then
+    wget https://dl.pstmn.io/download/latest/linux64 -O postman-linux.tar.gz
+    sudo tar -xzf postman-linux.tar.gz -C /opt
+    sudo ln -s /opt/Postman/Postman /usr/bin/postman
+
+    # Create desktop entry
+    echo "[Desktop Entry]
+Name=Postman
+Exec=/usr/bin/postman
+Icon=/opt/Postman/app/resources/app/assets/icon.png
+Type=Application
+Categories=Development;
+Comment=Postman is a collaboration platform for API development." | sudo tee ~/.local/share/applications/postman.desktop
+fi
+
+# OBS Studio
+if confirm_installation "OBS Studio"; then
+    sudo add-apt-repository ppa:obsproject/obs-studio
+    sudo apt update
+    sudo apt install -y obs-studio
+fi
+
+# Logseq
+if confirm_installation "Logseq"; then
+    wget https://github.com/logseq/logseq/releases/download/<latest_version>/Logseq-linux-x64-<version>.AppImage
+    chmod +x Logseq-linux-x64-<version>.AppImage
+    sudo mv Logseq-linux-x64-<version>.AppImage /usr/local/bin/logseq
+
+    # Create a desktop entry
+    echo "[Desktop Entry]
+Name=Logseq
+Exec=/opt/logseq/Logseq
+Icon=/opt/logseq/resources/app/icon.png
+Type=Application
+Categories=Utility;
+Comment=Logseq is a privacy-first, open-source knowledge base." | sudo tee ~/.local/share/applications/logseq.desktop
+fi
+
+# Spotify
+if confirm_installation "Spotify"; then
+    curl -sS https://download.spotify.com/debian/pubkey.gpg | sudo apt-key add -
+    echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+    sudo apt update
+    sudo apt install -y spotify-client
 fi
 
 # VLC
