@@ -55,9 +55,26 @@ fi
 
 # Docker and Docker Desktop
 if confirm_installation "Docker and Docker Desktop"; then
-    sudo apt remove docker docker-engine docker.io containerd runc
-    sudo apt update
-    sudo apt install -y docker-ce docker-ce-cli containerd.io
+    sudo apt install qemu-system qemu-user-static
+    modprobe kvm
+    if [[ "$cpu_vendor" == "GenuineIntel" ]]; then
+      modprobe kvm-intel
+    elif [[ "$cpu_vendor" == "AuthenticAMD" ]]; then
+      modprobe kvm-amd
+    fi
+    kvm-ok
+    lsmod | grep kvm
+    ls -al /dev/kvm
+    sudo usermod -aG kvm $USER
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     sudo curl -L "https://desktop.docker.com/linux/main/amd64/docker-desktop-<version>.deb" -o docker-desktop.deb
     sudo dpkg -i docker-desktop.deb
     sudo apt --fix-broken install -y
